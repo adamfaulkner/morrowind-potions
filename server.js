@@ -1,6 +1,7 @@
 var db = require('./db').sqlite_db;
 var express = require('express');
 var Q = require('q');
+var fs = require('fs');
 
 var app = express();
 
@@ -21,6 +22,9 @@ function query(ingredients) {
                    );
 }
 
+app.use('/static', express.static(__dirname + '/static'));
+
+
 app.get('/ingredients', function(req, res) {
   Q.ninvoke(db, 'all', 'SELECT DISTINCT ingredient FROM effects').then(
     function(rows) {
@@ -35,6 +39,10 @@ app.get('/ingredients', function(req, res) {
 
 app.get('/api', function(req, res) {
   var ingredients = req.query.ingredients;
+  if(ingredients.map === undefined) {
+    res.send([]);
+    return;
+  }
   query(ingredients).then(function(rows) {
     res.send(rows);
   });

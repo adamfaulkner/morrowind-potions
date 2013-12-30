@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular.js"></script>
+    <script src="script.js"></script>
+    <title>Morrowind Potion Calculator</title>
+  </head>
+  <body ng-app="main" ng-controller="indexController">
+      <select
+         style="height:300px"
+         ng-model="selectedIngredients" ng-change="change()"
+         multiple>
+        <option ng-repeat="availableIngredient in availableIngredients"
+                value="{{ availableIngredient }}">
+          {{ availableIngredient }}
+        </option>
+      </select>
+    </div>
+
+    <div>
+      <div ng-repeat="availablePotion in availablePotions">
+        {{ availablePotion.ingredient1 }} +
+        {{ availablePotion.ingredient2 }} =
+        {{ availablePotion.effect }}
+      </div>
+    </div>
+  </body>
+</html>
