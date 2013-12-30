@@ -1,5 +1,6 @@
 var db = require('./db.js').sqlite_db;
 var fs = require('fs');
+var Q = require('q');
 
 // Ingredients table
 exports.install = function() {
@@ -23,14 +24,18 @@ function insert(name, effects) {
     }
   }
 
-  effects.forEach(function(effect) {
-    db.run('INSERT INTO effects VALUES (?, ?)',
-           name, effect, done);
+  var done_promises = effects.map(function(effect) {
+    var clean_effect = effect.trim();
+    console.log('inserting', name, clean_effect);
+    return Q.ninvoke(db, "run", 'INSERT INTO effects VALUES (?, ?)', name, clean_effect).then(function() {
+      console.log('DONE inserting');
+    });
   });
+
+  return Q.all(done_promises);
 }
 
 exports.load = function() {
-  console.log(__dirname + '/ingredients.csv');
   fs.readFile(
     __dirname + '/ingredients.csv',
     {encoding: "ascii"},
@@ -39,13 +44,16 @@ exports.load = function() {
         throw err;
       }
       var rows = file_data.split('\n');
-      rows.forEach(function(row_string) {
+      var done_promises = rows.map(function(row_string) {
         var row = row_string.split(',');
         var name = row[0];
         var effects = row.slice(3);
         if (name && effects) {
-          insert(name, effects);
+          return insert(name, effects);
         }
+      });
+      Q.all(done_promises).then(function() {
+        console.log('Finished!');
       });
     });
 };
