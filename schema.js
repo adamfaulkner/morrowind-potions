@@ -25,9 +25,10 @@ function insert(name, effects) {
   }
 
   var done_promises = effects.map(function(effect) {
+    var clean_name = name.trim();
     var clean_effect = effect.trim();
-    console.log('inserting', name, clean_effect);
-    return Q.ninvoke(db, "run", 'INSERT INTO effects VALUES (?, ?)', name, clean_effect).then(function() {
+    console.log('inserting', clean_name, clean_effect);
+    return Q.ninvoke(db, "run", 'INSERT INTO effects VALUES (?, ?)', clean_name, clean_effect).then(function() {
       console.log('DONE inserting');
     });
   });

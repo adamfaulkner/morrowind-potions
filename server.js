@@ -8,9 +8,7 @@ function query(ingredients) {
   var sql_ingredients = '(' + ingredients.map(function(ingredient) {
       return '?';
   }).join(',') + ')';
-  console.log(sql_ingredients);
   var argument_ingredients = ingredients.concat(ingredients);
-  console.log(argument_ingredients);
   return Q.ninvoke(db, 'all', 'SELECT t1.ingredient as ingredient1, t2.ingredient as ingredient2,' +
                    't1.effect ' +
                    'FROM (effects as t1, effects as t2) ' +
@@ -23,8 +21,26 @@ function query(ingredients) {
                    );
 }
 
-app.get('/api', function(req, res) {
+app.get('/ingredients', function(req, res) {
+  Q.ninvoke(db, 'all', 'SELECT DISTINCT ingredient FROM effects').then(
+    function(rows) {
+      var result = rows.map(function(row) {
+        return row.ingredient;
+      });
+      res.send(result);
+    }, function(err) {
+      res.send({'error': err});
+    });
+});
 
+app.get('/api', function(req, res) {
+  var ingredients = req.query.ingredients;
+  query(ingredients).then(function(rows) {
+    res.send(rows);
+  });
 });
 
 exports.query = query;
+
+app.listen(3000);
+console.log('App listening on port 3000');
